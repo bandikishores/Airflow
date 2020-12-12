@@ -1,0 +1,51 @@
+image: golang:alpine
+clone:
+  depth: full
+pipelines:
+  pull-requests:
+    '**': # This runs as default for any branch not elsewhere defined
+      - step:
+          size: 2x # Double resources available for this step.
+          script:
+            - docker login --username $ARTIFACTORY_USER --password $ARTIFACTORY_PASSWORD bandi-docker.jfrog.io
+            - sh ./build/pipeline-common.sh
+            - make build
+            - export DOCKER_IMAGE_NAME=bandi-docker.jfrog.io/
+          services:
+            - docker
+          caches:
+            - docker # adds docker layer caching
+  branches:
+    master:
+      - step:
+          script: # Modify the commands below to build your repository.
+            - docker login --username $ARTIFACTORY_USER --password $ARTIFACTORY_PASSWORD bandi-docker.jfrog.io
+            - sh ./build/pipeline-common.sh
+            - make build
+            - make master-tag
+            - export DOCKER_IMAGE_NAME=bandi-docker.jfrog.io/
+            - make docker-push-prod
+            - make docker-push-dev-image
+          services:
+            - docker
+          caches:
+            - docker # adds docker layer caching
+      - step:
+          name: build_bootstrap_containers
+          script: # Modify the commands below to build your bootstrap code.
+            - sh ./build/pipeline-common.sh
+            - docker login --username $ARTIFACTORY_USER --password $ARTIFACTORY_PASSWORD bandi-docker.jfrog.io
+            - make docker-build-bootstrap
+            - make build-push-bootstrap
+          condition:
+            changesets:
+              includePaths:
+                - "bootstrap/**"
+          services:
+            - docker
+          caches:
+            - docker # adds docker layer caching
+definitions:
+  services:
+    docker:
+      memory: 3072

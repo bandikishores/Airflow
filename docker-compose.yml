@@ -1,0 +1,79 @@
+version: '3'
+
+networks:
+  workflow:
+    name: workflow
+    attachable: true
+
+x-workflow-base: &workflow-base
+  image: ${DOCKER_IMAGE_NAME}workflow-service:dev
+  environment:
+    AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CELERY__BROKER_URL: "redis://redis:6379/1"
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: vXWc3rYSF1RlUP9PjmccHFAeRn-Zj8SD9Xf5A8rIhVY=
+    AIRFLOW__CORE__LOGGING_LEVEL: INFO
+  volumes:
+    - ./airflow-data/dags:/opt/airflow/dags
+    - ./config/airflow.cfg:/opt/airflow/airflow.cfg
+  depends_on:
+    - postgres
+    - redis
+  networks:
+    - workflow
+
+services:
+  postgres:
+    image: postgres:13.1
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+      - POSTGRES_PORT=5432
+    ports:
+      - 5432:5432
+    networks:
+      - workflow
+    volumes:
+      - ./postgres-data/data:/var/lib/postgresql/data
+      - ./postgres-data/var/postgres:/usr/local/var/postgres/
+      - ./postgres-data/somedata:/var/lib/pgsql/
+      - ./postgres-data/run/pg_stat_tmp:/var/run/postgresql/pg_stat_tmp
+
+  redis:
+    image: redis:6.0.9
+    ports:
+      - 6379:6379
+    networks:
+      - workflow
+
+  workflow-webserver:
+    <<: *workflow-base
+    container_name: workflow_webserver
+    command: webserver
+    healthcheck:
+      test: ["CMD-SHELL", "[ -f /opt/airflow/airflow-webserver.pid ]"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+    ports:
+      - 8080:8080
+
+  flower:
+    <<: *workflow-base
+    container_name: workflow_flower
+    command: celery flower
+    ports:
+      - 5555:5555
+
+  workflow-scheduler:
+    <<: *workflow-base
+    container_name: workflow_scheduler
+    command: scheduler
+
+  workflow-worker:
+    <<: *workflow-base
+    container_name: workflow_worker
+    command: scheduler

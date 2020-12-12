@@ -1,0 +1,85 @@
+name: CI-pipeline
+on:
+  # Triggers the workflow on push or pull request events but only for the master branch
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ ]
+env:
+  GOPRIVATE: github.com/bandikishores
+jobs:
+  build:
+    strategy:
+      matrix:
+        go-version: [1.14.x]
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      GOPATH: ${{ github.workspace }}
+      GOBIN: ${{ github.workspace }}/bin
+      BUILD_NUMBER: ${{ github.run_number }}
+      GITHUB_TOKEN: ${{ secrets.REPO_PAT }}
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting
+          fetch-depth: 0
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod              # Module download cache
+            ~/.cache/go-build         # Build cache (Linux)
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Make Build and Docker Build
+        shell: bash
+        run: |
+          make install-dependencies
+          make build
+          make docker-build
+      - name: Login to jfrog Registry
+        run: echo ${{ secrets.JFROG_USERNAME }} | docker login --username ${{ secrets.JFROG_USERNAME }} --password ${{ secrets.JFROG_PASSWORD }}  bandi-docker.jfrog.io
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          base: master
+          token: ${{ secrets.GITHUB_TOKEN }}
+          working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+          filters: |
+            bootstrap:
+              - 'bootstrap/**'
+      - name: Push Bootstrap if master merge
+        if: contains('refs/heads/master', github.ref) && steps.filter.outputs.bootstrap == 'true'
+        run: |
+          export PATH=$PATH:$GOBIN
+          make master-tag
+          make docker-build-bootstrap
+          make build-push-bootstrap
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push the docker image if master merge
+        if: contains('refs/heads/master', github.ref)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          make build
+          make master-tag
+          make docker-push-prod
+          make docker-push-dev-image
