@@ -82,7 +82,7 @@ COPY --chown=airflow:root config/logging_config.py ${AIRFLOW_SITE_PACKAGE}/confi
 COPY --chown=airflow:root config/logging_config.py /usr/local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/dist-packages/airflow/config_templates/airflow_local_settings.py
 
 # This is to fix - https://stackoverflow.com/questions/54141416/airflow-neither-sqlalchemy-database-uri-nor-sqlalchemy-binds-is-set
-COPY config/webserver_config.py ${AIRFLOW_HOME}/webserver_config.py
+#COPY config/webserver_config.py ${AIRFLOW_HOME}/webserver_config.py
 
 RUN mkdir -pv "${AIRFLOW_HOME}"; \
     mkdir -pv "${AIRFLOW_HOME}/dags"; \

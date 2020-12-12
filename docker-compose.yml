@@ -10,11 +10,13 @@ x-workflow-base: &workflow-base
   environment:
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
     AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    BROKER_URL: "redis://redis:6379/1"
     AIRFLOW__CELERY__BROKER_URL: "redis://redis:6379/1"
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres:5432/airflow
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     AIRFLOW__CORE__FERNET_KEY: vXWc3rYSF1RlUP9PjmccHFAeRn-Zj8SD9Xf5A8rIhVY=
     AIRFLOW__CORE__LOGGING_LEVEL: INFO
+    WORKFLOW_UPGRADE_DB: "True"
   volumes:
     - ./airflow-data/dags:/opt/airflow/dags
     - ./config/airflow.cfg:/opt/airflow/airflow.cfg
@@ -76,4 +78,4 @@ services:
   workflow-worker:
     <<: *workflow-base
     container_name: workflow_worker
-    command: scheduler
+    command: celery worker

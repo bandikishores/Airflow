@@ -29,25 +29,35 @@ verify_db_connection "${AIRFLOW__CORE__SQL_ALCHEMY_CONN}"
 
 case "$1" in
   webserver)
-    echo "Initializing DB"
-    airflow db init
+    # Give the scheduler time to run initdb.
+    sleep 20
     if [ "$AIRFLOW__CORE__EXECUTOR" = "LocalExecutor" ] || [ "$AIRFLOW__CORE__EXECUTOR" = "SequentialExecutor" ]; then
       # With the "Local" and "Sequential" executors it should all run in one container.
       airflow scheduler &
     fi
-    echo "Creating Admin User"
-    airflow users create -r Admin -u admin -p admin -e kishore.bandi@skyflow.com -f Workflow -l Service
     echo "Starting Web Server"
     airflow webserver
     ;;
-  worker|scheduler)
-    # Give the webserver time to run initdb.
-    sleep 10
-    echo "Starting Worker/Scheduler"
+  scheduler)
+    echo "Initializing DB"
+    airflow db init
+    if [ "$WORKFLOW_UPGRADE_DB" = "True" ]; then
+      echo "Upgrading DB"
+      airflow db upgrade
+    fi
+    echo "Creating Admin User"
+    airflow users create --role Admin --username admin --email kishore.bandi@skyflow.com --firstname Workflow --lastname Service --password admin 
+    echo "Starting Scheduler"
+    exec airflow "$@"
+    ;;
+  worker)
+    # Give the scheduler time to run initdb.
+    sleep 20
+    echo "Starting Worker"
     exec airflow "$@"
     ;;
   flower)
-    sleep 10
+    sleep 20
     echo "Starting Flower"
     exec airflow "$@"
     ;;
