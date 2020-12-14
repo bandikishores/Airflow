@@ -27,6 +27,42 @@ source ./scripts/verify_db_connection.sh
 
 verify_db_connection "${AIRFLOW__CORE__SQL_ALCHEMY_CONN}"
 
+if ! whoami &> /dev/null; then
+  if [[ -w /etc/passwd ]]; then
+    echo "${USER_NAME:-default}:x:$(id -u):0:${USER_NAME:-default} user:${AIRFLOW_USER_HOME_DIR}:/sbin/nologin" \
+        >> /etc/passwd
+  fi
+  export HOME="${AIRFLOW_USER_HOME_DIR}"
+fi
+
+# Warning: command environment variables (*_CMD) have priority over usual configuration variables
+# for configuration parameters that require sensitive information. This is the case for the SQL database
+# and the broker backend in this entrypoint script.
+
+if [[ -n "${AIRFLOW__CORE__SQL_ALCHEMY_CONN_CMD=}" ]]; then
+  verify_db_connection "$(eval "$AIRFLOW__CORE__SQL_ALCHEMY_CONN_CMD")"
+else
+  # if no DB configured - use sqlite db by default
+  AIRFLOW__CORE__SQL_ALCHEMY_CONN="${AIRFLOW__CORE__SQL_ALCHEMY_CONN:="sqlite:///${AIRFLOW_HOME}/airflow.db"}"
+  verify_db_connection "${AIRFLOW__CORE__SQL_ALCHEMY_CONN}"
+fi
+
+if [[ -n "${AIRFLOW__CELERY__BROKER_URL_CMD=}" ]]; then
+  verify_db_connection "$(eval "$AIRFLOW__CELERY__BROKER_URL_CMD")"
+else
+
+# Note: the broker backend configuration concerns only a subset of Airflow components
+if [[ $1 =~ ^(scheduler|celery|worker|flower)$ ]]; then
+    if [[ -n "${AIRFLOW__CELERY__BROKER_URL_CMD=}" ]]; then
+        verify_db_connection "$(eval "$AIRFLOW__CELERY__BROKER_URL_CMD")"
+    else
+        AIRFLOW__CELERY__BROKER_URL=${AIRFLOW__CELERY__BROKER_URL:=}
+        if [[ -n ${AIRFLOW__CELERY__BROKER_URL=} ]]; then
+            verify_db_connection "${AIRFLOW__CELERY__BROKER_URL}"
+        fi
+    fi
+fi
+
 case "$1" in
   webserver)
     # Give the scheduler time to run initdb.
