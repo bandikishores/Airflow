@@ -509,5 +509,5 @@ ENV PYTHONPATH=/opt/airflow/.local/lib/python3.8/site-packages
 
 WORKDIR ${AIRFLOW_HOME}
 
-ENTRYPOINT ["/usr/bin/dumb-init", "--", "/entrypoint"]
+ENTRYPOINT ["./scripts/entrypoint.sh"]
 CMD ["airflow", "--help"]

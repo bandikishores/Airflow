@@ -47,10 +47,6 @@ else
   verify_db_connection "${AIRFLOW__CORE__SQL_ALCHEMY_CONN}"
 fi
 
-if [[ -n "${AIRFLOW__CELERY__BROKER_URL_CMD=}" ]]; then
-  verify_db_connection "$(eval "$AIRFLOW__CELERY__BROKER_URL_CMD")"
-else
-
 # Note: the broker backend configuration concerns only a subset of Airflow components
 if [[ $1 =~ ^(scheduler|celery|worker|flower)$ ]]; then
     if [[ -n "${AIRFLOW__CELERY__BROKER_URL_CMD=}" ]]; then
@@ -95,6 +91,15 @@ case "$1" in
   flower)
     sleep 20
     echo "Starting Flower"
+    exec airflow "$@"
+    ;;
+  celery)
+    sleep 20
+    if [ "$2" = "worker" ]; then
+      echo "Starting Celery Worker"
+    elif [ "$2" = "flower" ]; then
+      echo "Starting Celery Flower"
+    fi
     exec airflow "$@"
     ;;
   version)
