@@ -78,7 +78,7 @@ case "$1" in
       airflow db upgrade
     fi
     echo "Creating Admin User"
-    airflow users create --role Admin --username admin --email kishore.bandi@skyflow.com --firstname Workflow --lastname Service --password admin 
+    airflow users create --role Admin --username admin --email bandikishores@gmail.com --firstname Workflow --lastname Service --password admin 
     echo "Starting Scheduler"
     exec airflow "$@"
     ;;

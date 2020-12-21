@@ -1,9 +1,7 @@
 # README #
 
 This Repo contains the Code for Airflow Service Docker and its Dags, Plugins.
-
-* Plugins included 
-  - https://github.com/teamclairvoyant/airflow-rest-api-plugin
+This Airflow outputs all logs to console apart from file, so if there are any kubernetes log scrapper they'll get the logs
 
 ## How to use it ##
 
@@ -15,10 +13,10 @@ This Repo contains the Code for Airflow Service Docker and its Dags, Plugins.
 ### Setting up using local kubernetes ###
 
 * kubectl create namespace workflow
-* kubectl apply -f /Users/bandi/go/src/infra/k8s/charts/airflow-service/blitz-variables.yml --namespace=workflow 
-* kubectl apply -f /Users/bandi/go/src/infra/k8s/charts/airflow-service/role.yml --namespace=workflow 
+* kubectl apply -f /Users/bandi/go/src/bandi.com/Airflow/kube-helm-files/blitz-variables.yml --namespace=workflow 
+* kubectl apply -f /Users/bandi/go/src/bandi.com/Airflow/kube-helm-files/role.yml --namespace=workflow 
 * helm uninstall --create-namespace --namespace workflow workflow-webserver
-* helm install workflow-service --namespace workflow --values /Users/bandi/go/src/infra/k8s/charts/airflow-service/values.yaml --debug .
+* helm install workflow-service --namespace workflow --values /Users/bandi/go/src/bandi.com/Airflow/kube-helm-files/values.yaml --debug .
 * export POD_NAME=$(kubectl get pods --namespace workflow -l "component=web,app=workflow" -o jsonpath="{.items[0].metadata.name}") && kubectl logs -f $POD_NAME --namespace workflow
 * export POD_NAME=$(kubectl get pods --namespace workflow -l "component=web,app=workflow" -o jsonpath="{.items[0].metadata.name}") && kubectl port-forward --namespace workflow $POD_NAME 8080:8080
 * export POD_NAME=$(kubectl get pods --namespace workflow -l "component=scheduler,app=workflow" -o jsonpath="{.items[0].metadata.name}") && kubectl exec -it $POD_NAME --namespace workflow /bin/bash

@@ -15,7 +15,7 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': days_ago(1),
-    'email': ['kishore.bandi@skyflow.com'],
+    'email': ['bandikishores@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': True,
     'retries': 3,
@@ -78,7 +78,7 @@ rendered in the UI's Task Instance Details page.
 #     executor_memory='1g',
 #     num_executors='1',
 #     name='airflow-spark',
-#     application='/Users/bandi/go/src/skyflow.com/spikes/kishore/spark-airflow-s3-emr/target/spark-workflow-0.0.1-SNAPSHOT-shaded.jar',
+#     application='/Users/bandi/go/src/bandi.com/spikes/kishore/spark-airflow-s3-emr/target/spark-workflow-0.0.1-SNAPSHOT-shaded.jar',
 #     verbose=True,
 #     driver_memory='2g',
 #     conf={
@@ -87,12 +87,12 @@ rendered in the UI's Task Instance Details page.
 #         'spark.executor.extraJavaOptions':'-Dlog4j.configuration=log4j.properties',
 #         'driver-java-options':'"-Dlog4j.configuration=log4j.properties"',
 #     },
-#     files='{{ dag_run.conf["files"] if dag_run else "/Users/bandi/Documents/secrets.txt,/Users/bandi/go/src/skyflow.com/spikes/kishore/spark-airflow-s3-emr/target/classes/log4j.properties" }}',
+#     files='{{ dag_run.conf["files"] if dag_run else "/Users/bandi/Documents/secrets.txt,/Users/bandi/go/src/bandi.com/spikes/kishore/spark-airflow-s3-emr/target/classes/log4j.properties" }}',
 #     dag=dag,
 #     application_args=[
 #     ],
-#     java_class='com.skyflow.workflow.spark.BulkIngestion',
-#     # jars='/Users/bandi/go/src/skyflow.com/spikes/kishore/spark-airflow-s3-emr/target/spark-workflow-0.0.1-SNAPSHOT-shaded.jar'
+#     java_class='com.bandi.workflow.spark.BulkIngestion',
+#     # jars='/Users/bandi/go/src/bandi.com/spikes/kishore/spark-airflow-s3-emr/target/spark-workflow-0.0.1-SNAPSHOT-shaded.jar'
 #     )
 
 # t1 >> [t2, t3]

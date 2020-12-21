@@ -99,7 +99,7 @@ AUTH_TYPE = AUTH_DB
 # http://flask-appbuilder.readthedocs.io/en/latest/customizing.html#changing-themes
 # Please make sure to remove "navbar_color" configuration from airflow.cfg
 # in order to fully utilize the theme. (or use that property in conjunction with theme)
-# APP_THEME = "bootstrap-theme.css"  # default bootstrap
+APP_THEME = "bootstrap-theme.css"  # default bootstrap
 # APP_THEME = "amelia.css"
 # APP_THEME = "cerulean.css"
 # APP_THEME = "cosmo.css"

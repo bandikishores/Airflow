@@ -33,7 +33,7 @@
 #                        all the build essentials. This makes the image
 #                        much smaller.
 #
-ARG AIRFLOW_VERSION="2.0.0rc2"
+ARG AIRFLOW_VERSION="2.0.0"
 ARG AIRFLOW_EXTRAS="crypto,async,amazon,celery,kubernetes,spark,apache.spark,apache.livy,cncf.kubernetes,docker,dask,aws,s3,elasticsearch,ftp,grpc,hashicorp,http,google,microsoft.azure,mysql,postgres,redis,sendgrid,sftp,slack,ssh,statsd,virtualenv"
 ARG ADDITIONAL_AIRFLOW_EXTRAS=""
 ARG ADDITIONAL_PYTHON_DEPS=""
@@ -449,7 +449,7 @@ ARG BUILD_ID
 ENV BUILD_ID=${BUILD_ID}
 ARG COMMIT_SHA
 ENV COMMIT_SHA=${COMMIT_SHA}
-ARG PYTHON_MAJOR_MINOR_VERSION=${PYTHON_MAJOR_MINOR_VERSION}
+ARG PYTHON_MAJOR_MINOR_VERSION="3.8"
 
 LABEL org.apache.airflow.distro="debian" \
   org.apache.airflow.distro.version="buster" \
@@ -473,7 +473,7 @@ COPY --chown=airflow:root config/logging_config.py /usr/local/lib/python${PYTHON
 COPY --chown=airflow:root config/logging_config.py ${AIRFLOW_USER_HOME_DIR}/.local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/site-packages/airflow/config_templates/airflow_local_settings.py
 
 # This is to fix - https://stackoverflow.com/questions/54141416/airflow-neither-sqlalchemy-database-uri-nor-sqlalchemy-binds-is-set
-#COPY config/webserver_config.py ${AIRFLOW_HOME}/webserver_config.py
+COPY config/webserver_config.py ${AIRFLOW_HOME}/webserver_config.py
 
 USER root
 
@@ -503,7 +503,7 @@ ENV AIRFLOW__KUBERNETES__DAGS_IN_IMAGE="True"
 # This is needed to avoid No module named 'airflow_logging_settings' when loading settings.py
 #ENV PYTHONPATH="${AIRFLOW_SITE_PACKAGE}/config_templates:${PYTHONPATH}"
 #ENV AIRFLOW_USER_HOME_DIR=${AIRFLOW_HOME}
-ENV PYTHONPATH=/opt/airflow/.local/lib/python3.8/site-packages
+ENV PYTHONPATH=/opt/airflow/.local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/site-packages
 
 #RUN python3 -m pip install argcomplete flower celery
 

@@ -1,5 +1,5 @@
 # Taken from airflow github to avoid package updation remotely
-# https://raw.githubusercontent.com/apache/airflow/constraints-2.0.0rc2/constraints-3.8.txt
+# https://raw.githubusercontent.com/apache/airflow/constraints-2.0.0/constraints-3.8.txt
 APScheduler==3.6.3
 Authlib==0.15.2
 Babel==2.9.0
@@ -292,7 +292,7 @@ ptyprocess==0.6.0
 py4j==0.10.9
 py==1.9.0
 pyOpenSSL==19.1.0
-pyarrow==0.17.1
+pyarrow==2.0.0
 pyasn1-modules==0.2.8
 pyasn1==0.4.8
 pycodestyle==2.6.0
@@ -362,6 +362,7 @@ snowflake-connector-python==2.3.6
 snowflake-sqlalchemy==1.2.4
 sortedcontainers==2.3.0
 soupsieve==2.0.1
+sphinx-airflow-theme==0.0.2
 sphinx-argparse==0.2.5
 sphinx-autoapi==1.0.0
 sphinx-copybutton==0.3.1

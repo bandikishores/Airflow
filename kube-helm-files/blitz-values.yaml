@@ -1,0 +1,49 @@
+###################################
+# Airflow - Common Configs
+###################################
+airflow:
+  ## configs for the docker image of the web/scheduler/worker
+  ##
+  image:
+    repository: workflow-service
+    tag: dev
+    ## values: Always or IfNotPresent
+    pullPolicy: Never
+    pullSecret: prodregcred
+
+  fernetKey: "vXWc3rYSF1RlUP9PjmccHFAeRn-Zj8SD9Xf5A8rIhVY="
+
+  config:
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_REPOSITORY: "workflow-service"
+    AIRFLOW__KUBERNETES__WORKER_SERVICE_ACCOUNT_NAME: workflow
+    AIRFLOW__KUBERNETES__WORKER_CONTAINER_TAG: "dev"
+    #AIRFLOW__KUBERNETES__WORKER_CONTAINER_IMAGE_PULL_POLICY: "Always"
+    AIRFLOW__KUBERNETES__WORKER_PODS_CREATION_BATCH_SIZE: "3"
+    AIRFLOW__KUBERNETES__KUBE_CLIENT_REQUEST_ARGS: ""
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS: "True"
+    AIRFLOW__KUBERNETES__DELETE_WORKER_PODS_ON_FAILURE: "True"
+    AIRFLOW__KUBERNETES__DAGS_IN_IMAGE: "True"
+    AIRFLOW__KUBERNETES__ENV_FROM_CONFIGMAP_REF: airflow-variables
+    AIRFLOW__KUBERNETES__NAMESPACE: "workflow"
+    AIRFLOW__KUBERNETES__KUBE_CLIENT_REQUEST_ARGS: "{\"_request_timeout\":[60,60]}"
+    # Took config from https://github.com/kubernetes-client/python/blob/41f11a09995efcd0142e25946adc7591431bfb2f/kubernetes/client/models/v1_delete_options.py#L19
+    AIRFLOW__KUBERNETES__DELETE_OPTION_KWARGS: "{\"grace_period_seconds\":60}"
+    AIRFLOW__CORE__EXECUTOR: KubernetesExecutor
+    AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://workflow:workflowpassword@localhost:5432/workflow"
+    AIRFLOW__CORE__REMOTE_LOGGING: "False"
+    AIRFLOW__CORE__LOGGING_LEVEL: "INFO"
+    #AIRFLOW__CORE__TASK_LOG_READER: "console"
+    AIRFLOW__CORE__DAG_RUN_CONF_OVERRIDES_PARAMS: "True"
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: "True"
+    AIRFLOW__WEBSERVER__LOG_FETCH_TIMEOUT_SEC: "120"
+    AIRFLOW__SCHEDULER__CHILD_PROCESS_LOG_DIRECTORY: "/opt/airflow/logs"
+    # Use below ES Config when we want to log using JSON format, this needs docker image to be built using ES Patch
+    #AIRFLOW__ELASTICSEARCH__WRITE_STDOUT: "True"
+    #AIRFLOW__ELASTICSEARCH__JSON_FORMAT: "True"
+    #AIRFLOW__ELASTICSEARCH__HOST: "NA"
+    # This might sound scary, but 
+    # 1. we don't care about logs in this folder as we've graylog (Also the Airflow UI is not going to be used)
+    # 2. log rotation is not provided by default from Airflow. So we'll end up with Container being Evicted due to "DiskPressure" if we don't clean up logs
+    #AIRFLOW__CORE__BASE_LOG_FOLDER: "/dev/null"
+    
