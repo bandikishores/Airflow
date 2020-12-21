@@ -1,7 +1,7 @@
 # README #
 
-This Repo contains the Code for Airflow Service Docker and its Dags, Plugins.
-This Airflow outputs all logs to console apart from file, so if there are any kubernetes log scrapper they'll get the logs
+This Repo contains the Code for Airflow Service Docker and its Dags, Plugins. <br/>
+This Airflow outputs all logs to console apart from file, so if there are any kubernetes log scrapper they'll get the logs. <br/>
 
 ## How to use it ##
 
