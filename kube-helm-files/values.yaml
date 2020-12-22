@@ -154,6 +154,10 @@ airflow:
 # Airflow - Scheduler Configs
 ###################################
 scheduler:
+  ## the number of scheduler Pods to run
+  ##
+  replicas: 3
+
   ## resource requests/limits for the scheduler Pod
   ##
   ## EXAMPLE:

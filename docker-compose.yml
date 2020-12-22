@@ -17,6 +17,7 @@ x-workflow-base: &workflow-base
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     AIRFLOW__CORE__FERNET_KEY: vXWc3rYSF1RlUP9PjmccHFAeRn-Zj8SD9Xf5A8rIhVY=
     AIRFLOW__CORE__LOGGING_LEVEL: INFO
+    AIRFLOW__LOGGING__LOGGING_LEVEL: WARN
     WORKFLOW_UPGRADE_DB: "True"
   volumes:
     - ./airflow-data/dags:/opt/airflow/dags
@@ -63,6 +64,9 @@ services:
       retries: 3
     volumes:
       - ./config/webserver_config.py:/opt/airflow/webserver_config.py
+      - ./airflow-data/dags:/opt/airflow/dags
+      - ./config/airflow.cfg:/opt/airflow/airflow.cfg
+      - ./config/security_apiconnex.py:/opt/airflow/.local/lib/python3.8/site-packages/airflow/api_connexion/security.py
     ports:
       - 8080:8080
 

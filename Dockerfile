@@ -471,6 +471,8 @@ ARG AIRFLOW_SITE_PACKAGE="/root/.local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/s
 COPY --chown=airflow:root config/logging_config.py ${AIRFLOW_SITE_PACKAGE}/config_templates/airflow_local_settings.py
 COPY --chown=airflow:root config/logging_config.py /usr/local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/dist-packages/airflow/config_templates/airflow_local_settings.py
 COPY --chown=airflow:root config/logging_config.py ${AIRFLOW_USER_HOME_DIR}/.local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/site-packages/airflow/config_templates/airflow_local_settings.py
+# This is needed as basic auth is not working for REST API calls
+COPY --chown=airflow:root config/security_apiconnex.py ${AIRFLOW_USER_HOME_DIR}/.local/lib/python${PYTHON_MAJOR_MINOR_VERSION}/site-packages/airflow/api_connexion/security.py
 
 # This is to fix - https://stackoverflow.com/questions/54141416/airflow-neither-sqlalchemy-database-uri-nor-sqlalchemy-binds-is-set
 COPY config/webserver_config.py ${AIRFLOW_HOME}/webserver_config.py
@@ -493,6 +495,7 @@ RUN chown -R "airflow:root" "${AIRFLOW_HOME}"; \
 # Compile Dags to see if they're valid. Reset Alchemy conn after verification of dags
 ENV AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
 ENV AIRFLOW__CORE__LOGGING_LEVEL="INFO"
+ENV AIRFLOW__LOGGING__LOGGING_LEVEL="INFO"
 ENV AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION="False"
 RUN mkdir -p /opt/airflow/logs/scheduler/ 
 RUN python3 -m compileall -f ${AIRFLOW_HOME}/dags/
