@@ -2,6 +2,7 @@
 
 This Repo contains the Code for Airflow Service Docker and its Dags, Plugins. <br/>
 This Airflow outputs all logs to console apart from file, so if there are any kubernetes log scrapper they'll get the logs. <br/>
+This build also disables Authentication for REST APIs. <br/>
 
 ## How to use it ##
 
